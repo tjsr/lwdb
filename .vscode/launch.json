@@ -1,0 +1,74 @@
+{
+  "configurations": [
+    {
+      "name": "TSX: Run LWDB as server",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "type": "node",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "tsx"
+      ],
+      "env": {
+        "DOTENV_FLOW_PATTERN": ".env.dev[.local]"
+      },
+      "args": [
+        "${workspaceFolder}/index.ts"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "name": "tsc: Run LWDB as server",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "type": "node",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "tsx"
+      ],
+      "program": "${workspaceFolder}/index.ts",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "env": {
+        "DOTENV_FLOW_PATTERN": ".env.dev[.local]"
+      },
+      "outFiles": [
+        "${workspaceFolder}/dist/esm/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "name": "Run as server (2)",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "name": "Attach to server",
+      "port": 8999,
+      "request": "attach",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    }
+  ]
+}
