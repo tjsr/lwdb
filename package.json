@@ -59,7 +59,7 @@
     "rimraf@<=4": "$rimraf"
   },
   "dependencies": {
-    "@tjsr/fs-utils": "^0.0.6",
+    "@tjsr/fs-utils": "^0.0.7",
     "express-session": "^1.18.0",
     "session-file-store": "^1.5.0",
     "source-map-support": "^0.5.21"
