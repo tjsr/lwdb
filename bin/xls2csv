@@ -1,0 +1,111 @@
+#!/usr/bin/env ts-node-script
+
+import { verifyAccessOrExit, verifyStatOrExit } from '../dist/util/fileAccess.js';
+
+import Excel from 'exceljs';
+import { convertToJsonFile } from '../dist/util/xlsJsonConvertUtil.js';
+import os from 'node:os';
+
+// csvConvertor.supportQuotedField(true);
+// csvConvertor.indexHeader(true);
+
+const testPath = "C:\\Users\\tim\\OneDrive\\Documents\\Last War Calculator.xlsx";
+const inputFile = process.argv[2] || testPath;
+const outDir = process.argv[3] || os.tmpdir();
+
+if (!inputFile) {
+  console.error('Please provide an input file');
+  process.exit(1);
+}
+
+await verifyAccessOrExit(inputFile);
+await verifyStatOrExit(inputFile);
+
+console.log(`Converting ${inputFile} to CSV in ${outDir}`);
+
+const workbookTemplate = new Excel.Workbook();
+const workbook = await workbookTemplate.xlsx.readFile(inputFile);
+console.log(`Read ${workbook.worksheets.length} sheets from ${inputFile}`);
+
+const processedSheets = [];
+
+let directoryStatResolveBarrier, directoryStatRejectBarrier, sheetResolveBarrier, sheetRejectBarrier;
+let directoryStatBarrier = new Promise((resolve, reject) => {
+  directoryStatResolveBarrier = resolve;
+  directoryStatRejectBarrier = reject;
+});
+
+let sheetBarrier = new Promise((resolve, reject) => {
+  sheetResolveBarrier = resolve;
+  sheetRejectBarrier = reject;
+});
+
+const outputDirStats = await verifyStatOrExit(outDir);
+const isOutputDirectory = outputDirStats.isDirectory();
+// Note: workbook.worksheets.forEach will still work but this is better
+// Iterate over all sheets
+directoryStatResolveBarrier(isOutputDirectory);
+
+const limitedSheets = [
+  // 'Upgrades',
+  // 'BuildingData'
+];
+
+directoryStatBarrier.then((isOutputDir) => {
+  const sheetCount = workbook.worksheets.length;
+  console.log(`Processing ${sheetCount} sheets...`);
+  workbook.eachSheet((worksheet, sheetId) => {
+    if (limitedSheets.length > 0 && !limitedSheets.includes(worksheet.name)) {
+      console.log(`Skipping sheet ${worksheet.name}`);
+      return;
+    }
+    console.log(`Processing sheet [${sheetId}] ${worksheet.name}...`);
+    convertToJsonFile(worksheet, outDir).then((jsonOutputFilename) => {
+      console.log(`Write JSON from sheet ${worksheet.name} to ${jsonOutputFilename}`);
+      if (processedSheets.length == sheetCount) {
+        sheetResolveBarrier();
+      }  
+    });
+    // convertToOutputFiles(workbook, worksheet, outDir);
+    // let outputFilename = worksheetOutputFilenameForTarget(worksheet.name, outDir, isOutputDir, 'csv');
+    // let jsonOutputFilename = worksheetOutputFilenameForTarget(worksheet.name, outDir, isOutputDir, 'json');
+    
+    // console.log(`Processing sheet [${sheetId}] ${worksheet.name} to ${outputFilename}`);
+
+    // const csvPromise = workbook.csv.writeFile(outputFilename, { ...csvWritingOptions, sheetName: worksheet.name });
+    // processedSheets.push(csvPromise);
+    // csvPromise.then(() => {
+    //   console.log(`Wrote ${worksheet.name} to ${outputFilename}.  Writing JSON to ${jsonOutputFilename}...`);
+
+    //   const jsonOutputFile = fs.createWriteStream(jsonOutputFilename);
+
+    //   try {
+    //     fs.createReadStream(outputFilename)
+    //     .pipe(csv.parse({ headers: true }))
+    //     .pipe(jsonOutputFile)
+    //     .on('error', error => {
+    //       console.error('While processing sheet ' + worksheet.name, error);
+    //     })
+    //     .on('end', (rowCount) => {
+    //       console.log(`Parsed ${rowCount} rows`)
+    //       jsonOutputFile.close();
+    //     });
+    //   } catch (err) {
+    //     console.error(`Error writing ${worksheet.name} JSON to ${jsonOutputFilename}`, err);
+    //   }
+    //   }).catch((err) => {
+    //   console.error(`Error writing ${worksheet.name} JSON to ${jsonOutputFilename}`, err);
+    //   // sheetRejectBarrier(err);
+    // });
+  });
+});
+
+sheetBarrier.then(() => {
+  Promise.all(processedSheets).then(() => {
+    console.log(`Processed ${processedSheets.length} sheets`);
+    process.exit(0);
+  }).catch((err) => {
+    console.error('Error processing sheets', err);
+    process.exit(4);
+  });  
+});

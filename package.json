@@ -11,9 +11,13 @@
       "import": "./dist/esm/index.js"
     }
   },
+  "bin": {
+    "xls2csv": "bin/xls2csv"
+  },
   "scripts": {
     "test": "vitest --run && npm run lint",
     "build": "tsc",
+    "build:clean": "npm run clean && npm run build",
     "start:dev": "nodemon",
     "start:prod": "node index.js",
     "clean": "npx rimraf dist build",
@@ -37,21 +41,23 @@
   },
   "homepage": "https://github.com/tjsr/lwdb#readme",
   "devDependencies": {
+    "@fast-csv/parse": "^5.0.0",
     "@tjsr/eslint-config": "github:tjsr/eslint-config#main",
     "@types/cors": "^2.8.17",
+    "@types/exceljs": "^0.5.3",
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.18.0",
     "@types/node": "^20.14.14",
     "@types/session-file-store": "^1.2.5",
     "@types/source-map-support": "^0.5.10",
+    "convert-csv-to-json": "^2.48.0",
+    "dayjs": "^1.11.12",
+    "exceljs": "^4.4.0",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.16.5",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
-  },
-  "overrides": {
-    "rimraf@<=4": "$rimraf"
   },
   "dependencies": {
     "@tjsr/express-server-helper": "^0.0.3",

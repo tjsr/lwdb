@@ -13,10 +13,10 @@
         "tsx"
       ],
       "env": {
-        "DOTENV_FLOW_PATTERN": ".env.dev[.local]"
+        "DOTENV_FLOW_PATTERN": ".env.development[.local]"
       },
       "args": [
-        "${workspaceFolder}/index.ts"
+        "${workspaceFolder}/src/index.ts"
       ],
       "outFiles": [
         "${workspaceFolder}/dist/**/*.(m|c|)js",
@@ -35,10 +35,10 @@
       "runtimeArgs": [
         "tsx"
       ],
-      "program": "${workspaceFolder}/index.ts",
+      "program": "${workspaceFolder}/src/index.ts",
       "preLaunchTask": "tsc: build - tsconfig.json",
       "env": {
-        "DOTENV_FLOW_PATTERN": ".env.dev[.local]"
+        "DOTENV_FLOW_PATTERN": ".env.development[.local]"
       },
       "outFiles": [
         "${workspaceFolder}/dist/esm/**/*.(m|c|)js",
@@ -69,6 +69,24 @@
         "${workspaceFolder}/dist/**/*.(m|c|)js",
         "!**/node_modules/**"
       ]
+    },{
+      "type": "node",
+      "request": "launch",
+      "name": "Debug xls2csv",
+      "program": "${workspaceFolder}/bin/xls2csv",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "node",
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
+    },{
+      "type": "node",
+      "request": "launch",
+      "name": "Debug xls2json",
+      "program": "${workspaceFolder}/bin/xls2json",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "node",
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
     }
   ]
 }
