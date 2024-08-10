@@ -5,16 +5,17 @@ import { verifyAccessOrExit, verifyStatOrExit } from '../dist/util/fileAccess.js
 import Excel from 'exceljs';
 import { convertToJsonFile } from '../dist/util/xlsJsonConvertUtil.js';
 import os from 'node:os';
+import { loadEnv, requireEnv } from '@tjsr/simple-env-utils';
+import fs, { fstat, fstatSync } from 'node:fs';
 
-// csvConvertor.supportQuotedField(true);
-// csvConvertor.indexHeader(true);
+loadEnv();
 
-const testPath = "C:\\Users\\tim\\OneDrive\\Documents\\Last War Calculator.xlsx";
-const inputFile = process.argv[2] || testPath;
-const outDir = process.argv[3] || os.tmpdir();
+const inputFile = process.argv[2] || requireEnv('EXCEL_WORKBOOK_PATH',
+  'EXCEL_WORKBOOK_PATH environment variable if argument for input file is not provided');
+const outDir = process.argv[3] || process.env['EXCEL_DATA_JSON_OUTPUT_PATH'] || os.tmpdir();
 
 if (!inputFile) {
-  console.error('Please provide an input file');
+  console.error('Please provide an input file as first argument or in EXCEL_WORKBOOK_PATH environment variable');
   process.exit(1);
 }
 
@@ -22,6 +23,10 @@ await verifyAccessOrExit(inputFile);
 await verifyStatOrExit(inputFile);
 
 console.log(`Converting ${inputFile} to CSV in ${outDir}`);
+if (!fs.existsSync(outDir)) {
+  console.log('Output directory does not exist, created.');
+  fs.mkdirSync(outDir, { recursive: true });
+}
 
 const workbookTemplate = new Excel.Workbook();
 const workbook = await workbookTemplate.xlsx.readFile(inputFile);
@@ -36,10 +41,18 @@ let sheetBarrier = new Promise((resolve, reject) => {
   sheetRejectBarrier = reject;
 });
 
-const limitedSheets = [
+let limitedSheets = [
   'BuildingUpgradeData',
   'ResearchUpgradeData',
 ];
+
+const sheetsVar = process.argv[4] || process.env['EXCEL_SHEETS'];
+if (!sheetsVar) {
+  console.log('No sheets specified, processing all sheets');
+} else {
+  limitedSheets = sheetsVar.split(',').map((sheet) => sheet.trim());
+  console.log(`Processing ${limitedSheets.length} sheets...`);
+}
 
 const excludeColumns = [
   'Obtained',
