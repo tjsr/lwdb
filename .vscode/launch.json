@@ -82,6 +82,9 @@
       "type": "node",
       "request": "launch",
       "name": "Debug xls2json",
+      "env": {
+        "NODE_ENV": "development"
+      },
       "program": "${workspaceFolder}/bin/xls2json",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "node",
