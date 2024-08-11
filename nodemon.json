@@ -1,6 +1,6 @@
 {
   "delay": 500,
-  "exec": "tsc --noEmit && node --import=./register.js --debug-port=8999 ./index.ts",
+  "exec": "tsc --noEmit && node --import=./register.js --debug-port=8999 ./src/index.ts",
   "execMap": {
     "ts": "ts-node"
   },
@@ -12,7 +12,13 @@
     "sessions"
   ],
   "ext": "ts",
-  "watch": ["src", "nodemon.json", "package.json", "./*.ts", ".env.local"],
+  "watch": [
+    "src",
+    "nodemon.json",
+    "package.json",
+    "./*.ts",
+    ".env*.local"
+  ],
   "verbose": true,
   "env": {
     "NODE_ENV": "development",
