@@ -46,9 +46,9 @@ let limitedSheets = [
   'ResearchUpgradeData',
 ];
 
-const sheetsVar = process.argv[4] || process.env['EXCEL_SHEETS'];
+const sheetsVar = process.argv[4] || process.env['EXCEL_WORKSHEETS'];
 if (!sheetsVar) {
-  console.log('No sheets specified, processing all sheets');
+  console.log('No sheets specified, processing only default sheets:', limitedSheets);
 } else {
   limitedSheets = sheetsVar.split(',').map((sheet) => sheet.trim());
   console.log(`Processing ${limitedSheets.length} sheets...`);
