@@ -1,11 +1,10 @@
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
+import hello from "./hello.js";
+import rss from "./rss.js";
 
 export const handlers = (app: express.Express) => {
-  app.get('/hello', (_request: Request, response: Response, next: NextFunction) => {
-    // response.json();
-    response.send({ message: 'Hello, World!' });
-    next();
-  });
+  app.get('/hello', hello);
+  app.get('/rss', rss);
 };
 
 export default handlers;
