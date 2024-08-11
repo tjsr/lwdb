@@ -1,27 +1,22 @@
-import { NextFunction, Request, Response } from 'express';
+import express from 'express';
+import { jsonFromDataDir } from '../util/jsonFromDataDir.js';
+import { validateLevel } from './validateLevel.js';
 
-import fs from 'node:fs';
-import path from 'node:path';
+type Request = express.Request & { params: { level?: string } };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const dataCache: Map<string, any> = new Map();
+export const rss = (request: Request, response: express.Response, next: express.NextFunction) => {
+  console.debug('Processing RSS data...');
+  let rssData = jsonFromDataDir('CrateStats', process.env['DATA_DIR'] || 'data');
 
-const jsonFromDataDir = (dataFile: string, dataDir = 'data') => {
-  if (dataCache.has(dataFile)) {
-    return dataCache.get(dataFile);
+  const level = request.params.level ? parseInt(request.params.level) : undefined;
+  console.log('Filtering by level:', level);
+  if (level) {
+    rssData = rssData.filter((item: { Level: string }) => parseInt(item.Level) === level);
   }
-  const dataPath = path.join(__dirname, '..', dataDir, `${dataFile}.json`);
-  const jsonData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-  dataCache.set(dataFile, jsonData);
-  return jsonData;
-};
 
-export const rss = (_request: Request, response: Response, next: NextFunction) => {
-  const rssData = jsonFromDataDir('CrateStats');
-  response.json();
   response.send(rssData);
 
   next();
 };
 
-export default rss;
+export default [validateLevel, rss];
